@@ -1,0 +1,15 @@
+{
+  "components": {
+    "seeds": {},
+    "plugins": {
+      "PetriNetCodeGenerator": {
+        "src": "src/plugins/PetriNetCodeGenerator",
+        "test": "test/plugins/PetriNetCodeGenerator"
+      }
+    }
+  },
+  "dependencies": {
+    "seeds": {},
+    "plugins": {}
+  }
+}
