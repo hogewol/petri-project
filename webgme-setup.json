@@ -10,10 +10,27 @@
         "src": "src/plugins/PetriNetCodeGenerator",
         "test": "test/plugins/PetriNetCodeGenerator"
       }
+    },
+    "visualizers": {
+      "PlotView": {
+        "src": "panels/PlotView/PlotViewPanel",
+        "title": "PlotView",
+        "panel": "src/visualizers/panels/PlotView",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/PlotView"
+      },
+      "PetriNetViz": {
+        "src": "panels/PetriNetViz/PetriNetVizPanel",
+        "title": "PetriNetViz",
+        "panel": "src/visualizers/panels/PetriNetViz",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/PetriNetViz"
+      }
     }
   },
   "dependencies": {
     "seeds": {},
-    "plugins": {}
+    "plugins": {},
+    "visualizers": {}
   }
 }

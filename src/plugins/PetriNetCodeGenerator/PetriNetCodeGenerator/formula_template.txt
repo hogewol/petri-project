@@ -1,0 +1,21 @@
+${domain}
+
+model ${name} of PetriNets
+{
+% for place in places:
+ ${place['name']} is Place("${state['name']}").
+% endfor
+
+% for transition in transitions:
+ ${transition['name']} is Transition("${transition['name']}").
+% endfor
+
+% for arc in arcs:
+% if arc['isT2P']:
+ T2P(${arc['src']}, ${arc['dst']}).
+% endif
+% if arc['isP2T']:
+ P2T(${arc['src']}, ${arc['dst']}).
+% endif
+% endfor
+}

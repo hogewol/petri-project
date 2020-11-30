@@ -4,7 +4,12 @@ The PetriNetCodeGenerator-class is imported from both run_plugin.py and run_debu
 """
 import sys
 import logging
+import json
+import os
+import random
+import shutil
 from webgme_bindings import PluginBase
+from mako.template import Template
 
 # Setup a logger
 logger = logging.getLogger('PetriNetCodeGenerator')
@@ -15,18 +20,16 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+# Prepare the templates
+formula_code_template = Template(filename=os.path.join(os.path.dirname(__file__), 'formula_template.txt'))
+formula_domain_template = Template(filename=os.path.join(os.path.dirname(__file__), 'formula_domain.txt'))
 
 class PetriNetCodeGenerator(PluginBase):
     def main(self):
         core = self.core
+        META = self.META
         root_node = self.root_node
         active_node = self.active_node
+        path2node = {}
 
-        name = core.get_attribute(active_node, 'name')
-
-        logger.info('ActiveNode at "{0}" has name {1}'.format(core.get_path(active_node), name))
-
-        core.set_attribute(active_node, 'name', 'newName')
-
-        commit_info = self.util.save(root_node, self.commit_hash, 'master', 'Python plugin updated the model')
-        logger.info('committed :{0}'.format(commit_info))
+        #Collect Place, Transition, and Arc info

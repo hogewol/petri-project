@@ -1,0 +1,8 @@
+// This file is for simulation with Formula
+domain PetriNets
+{
+    Place ::= new(name: String, marking: Integer).
+    Transition ::= new(name: String).
+    P2T ::= new(src: Place, dst: Transition).
+    T2P ::= new(src: Transition, dst: Place).
+}
