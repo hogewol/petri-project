@@ -10,6 +10,7 @@ define(['jointjs','css!./styles/PetriNetVizWidget.css','css!jointjscss'], functi
     var WIDGET_CLASS = 'petri-net-viz';
 
     function PetriNetVizWidget(logger, container) {
+        console.log(jointjs);
         this._logger = logger.fork('Widget');
 
         this._el = container;
@@ -28,64 +29,103 @@ define(['jointjs','css!./styles/PetriNetVizWidget.css','css!jointjscss'], functi
         // set widget class
         this._el.addClass(WIDGET_CLASS);
 
-        // Create a dummy header
-        this._el.append('<h3>PetriNetViz Events:</h3>');
+        this._graph = null;
+        this._paper = null;
 
-        // Registering to events can be done with jQuery (as normal)
-        this._el.on('dblclick', function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-            self.onBackgroundDblClick();
+        this._graph = new jointjs.dia.Graph;
+        this._paper = new jointjs.dia.Paper({
+            el: $(this._el),
+            width: width,
+            height: height,
+            gridSize: 1,
+            defaultAnchor: {name: 'perpendicular'},
+            defaultConnectionPoint: {name: 'boundary'},
+            model: this._graph
+        });
+
+        // Since this is a simulator - we don't want user to move elements
+        this._paper.setInteractivity(false);
+        this._paper.removeTools();
+
+        // Register when user clicks on an element
+        this._paper.on('element:pointerdown', function(elementView) {
+            var currentElement = elementView.model;
+            console.log(currentElement);
+        });
+
+        // Create how we want shapes to look
+        this._place = jointjs.dia.Element.define('network.Place', {
+            size: { width: 50, height: 50 },
+            attrs: {
+                '.root': {
+                    r: 25,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    transform: 'translate(25, 25)'
+                },
+                '.label': {
+                    'text-anchor': 'middle',
+                    'ref-x': .5,
+                    'ref-y': -20,
+                    ref: '.root',
+                    fill: '#000000',
+                    'font-size': 12
+                },
+                '.tokens > circle': {
+                    fill: '#000000',
+                    r: 5
+                },
+                '.tokens.one > circle': { transform: 'translate(25, 25)' },
+
+                '.tokens.two > circle:nth-child(1)': { transform: 'translate(19, 25)' },
+                '.tokens.two > circle:nth-child(2)': { transform: 'translate(31, 25)' },
+
+                '.tokens.three > circle:nth-child(1)': { transform: 'translate(18, 29)' },
+                '.tokens.three > circle:nth-child(2)': { transform: 'translate(25, 19)' },
+                '.tokens.three > circle:nth-child(3)': { transform: 'translate(32, 29)' },
+
+                '.tokens.alot > text': {
+                    transform: 'translate(25, 18)',
+                    'text-anchor': 'middle',
+                    fill: '#000000'
+                }
+            }
+        }, {
+        markup: '<g class="rotatable"><g class="scalable"><circle class="root"/><g class="tokens" /></g><text class="label"/></g>',
         });
     };
 
     PetriNetVizWidget.prototype.onWidgetContainerResize = function (width, height) {
         this._logger.debug('Widget is resizing...');
+        if(this._paper) {
+            this._paper.setDimensions(width,height);
+            this._paper.scaleContentToFit();
+        }
     };
 
     // Adding/Removing/Updating items
     PetriNetVizWidget.prototype.addNode = function (desc) {
-        if (desc) {
-            // Add node to a table of nodes
-            var node = document.createElement('div'),
-                label = 'children';
-
-            if (desc.childrenIds.length === 1) {
-                label = 'child';
-            }
-
-            this.nodes[desc.id] = desc;
-            node.innerHTML = 'Adding node "' + desc.name + '" (click to view). It has ' +
-                desc.childrenIds.length + ' ' + label + '.';
-
-            this._el.append(node);
-            node.onclick = this.onNodeClick.bind(this, desc.id);
-        }
+        this.initNetwork();
     };
 
     PetriNetVizWidget.prototype.removeNode = function (gmeId) {
-        var desc = this.nodes[gmeId];
-        this._el.append('<div>Removing node "' + desc.name + '"</div>');
-        delete this.nodes[gmeId];
+
     };
 
     PetriNetVizWidget.prototype.updateNode = function (desc) {
-        if (desc) {
-            this._logger.debug('Updating node:', desc);
-            this._el.append('<div>Updating node "' + desc.name + '"</div>');
-        }
+ 
     };
 
-    /* * * * * * * * Visualizer event handlers * * * * * * * */
+    // Simulation Function
+    PetriNetVizWidget.prototype.initNetwork = function (descriptor) {
 
-    PetriNetVizWidget.prototype.onNodeClick = function (/*id*/) {
-        // This currently changes the active node to the given id and
-        // this is overridden in the controller.
     };
 
-    PetriNetVizWidget.prototype.onBackgroundDblClick = function () {
-        this._el.append('<div>Background was double-clicked!!</div>');
-    };
+    // Handling clicks
+    PetriNetVizWidget.prototype.onElementClick = function(elementView, event) {
+        event.stopPropagation();
+        console.log(elementView);
+    }
 
     /* * * * * * * * Visualizer life cycle callbacks * * * * * * * */
     PetriNetVizWidget.prototype.destroy = function () {
